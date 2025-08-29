@@ -30,5 +30,8 @@ Aplicación web desarrollada con Django y MySQL para gestionar fichas editoriale
 
 ## Integrantes
 
-- Ramiro Uribe
-- [Agregar nombres aquí]
+- Andrea Vilches
+- Valentina Sandoval
+- Nicolás Correa
+- Rivaldo Uribe
+
