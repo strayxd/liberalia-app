@@ -28,6 +28,17 @@ Aplicación web desarrollada con Django y MySQL para gestionar fichas editoriale
    python manage.py runserver
    ```
 
+## Variables de Entorno
+   DB_NAME=liberalia
+   DB_USER=libuser
+   DB_PASSWORD=LIBEralia2025#
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   SECRET_KEY=djangosecretkey
+   DEBUG=True
+   ALLOWED_HOSTS=127.0.0.1,localhost
+
+
 ## Integrantes
 
 - Andrea Vilches
