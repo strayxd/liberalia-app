@@ -22,6 +22,19 @@ Aplicación web desarrollada con Django y MySQL para gestionar fichas editoriale
    pip install -r requirements.txt
    ```
 4. Configurar `.env` con los datos de conexión a la base MySQL
+
+## Variables de entorno
+
+```env
+DB_NAME=liberalia
+DB_USER=libuser
+DB_PASSWORD=LIBEralia2025#
+DB_HOST=127.0.0.1
+DB_PORT=3306
+SECRET_KEY=djangosecretkey
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+
 5. Ejecutar:
    ```bash
    python manage.py migrate
