@@ -41,7 +41,24 @@ ALLOWED_HOSTS=127.0.0.1,localhost
    python manage.py runserver
    ```
 
+## Variables de entorno
+
+
+DB_NAME=liberalia
+DB_USER=libuser
+DB_PASSWORD=LIBEralia2025#
+DB_HOST=127.0.0.1
+DB_PORT=3306
+SECRET_KEY=djangosecretkey
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+
+
+
 ## Integrantes
 
-- Ramiro Uribe
-- [Agregar nombres aquí]
+- Andrea Vilches
+- Valentina Sandoval
+- Nicolás Correa
+- Rivaldo Uribe
+
