@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Liberalia{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body{ min-height:100dvh; display:flex; flex-direction:column; }
+    main{ flex:1 0 auto; display:grid; place-items:center; padding:2rem 1rem; }
+    .auth-card{ max-width:380px; width:100%; border-radius:1rem; }
+    .brand-logo{ width:120px; height:auto; }
+    .footer-band{ background:#212529; color:#f8f9fa; }
+    .footer-band .contact{ font-size:.9rem; line-height:1.3; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer-band py-3">
+  <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <!-- Logo footer -->
+     <img src="{% static 'img/logo_liberalia2.png' %}" class="brand-logo" alt="Liberalia">
+
+
+    </div>
+    <div class="contact text-md-end">
+      <div class="d-flex align-items-center gap-3 justify-content-md-end">
+        <a class="text-light text-decoration-none" href="https://www.facebook.com/liberaliaEd/?locale=es_LA" aria-label="Facebook">
+            <i class="bi bi-facebook fs-5"></i>
+        </a>
+        <a class="text-light text-decoration-none" href="https://www.instagram.com/liberalia_ediciones/?hl=es" aria-label="Instagram">
+            <i class="bi bi-instagram fs-5"></i>
+        </a>
+
+        <a class="text-light text-decoration-none" href="mailto:info@liberaliediciones.com" aria-label="Email"><i class="bi bi-envelope fs-5"></i></a>
+      </div>
+      <div>info@liberaliediciones.com</div>
+      <div>Teléfonos: +569 23434342 - 23434832 - 23438803</div>
+      <div>Av. Italia 2016, 7770478, Ñuñoa, Santiago, Región Metropolitana.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Validación Bootstrap (cliente) -->
+<script>
+(() => {
+  'use strict';
+  const forms = document.querySelectorAll('.needs-validation');
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
