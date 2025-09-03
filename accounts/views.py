@@ -51,4 +51,5 @@ def home(request):
     if request.user.is_authenticated:
         return HttpResponse("<h2>Hola, %s</h2><p><a href='/accounts/logout/'>Cerrar sesión</a></p>" %
                             request.user.get_username())
-    return HttpResponse("<h2>Home pública</h2><p><a href='/accounts/login/'>Iniciar sesión</a></p>")
+    return HttpResponse("<h2>Sistema de Gestión de Novedades Editoriales</h2>" "<p>"
+    "<a href='/accounts/login/'>Iniciar sesión</a></p>")
