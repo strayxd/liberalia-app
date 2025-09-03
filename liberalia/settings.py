@@ -124,3 +124,16 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
+
+
+# Configuracion envío email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'mail.liberalia.cl')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))           # 465 según cPanel (SSL)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'novedades@liberalia.cl')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')   # en .env (no lo subas a git)
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'True') == 'True'   # SSL = True
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False') == 'True'  # TLS = False en 465
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'novedades@liberalia.cl')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL  # opcional, buen hábito
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', 30)) 

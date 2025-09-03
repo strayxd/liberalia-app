@@ -14,11 +14,44 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),   # rutas de login
-    path('', include('accounts.urls_root')),       # portada simple de ejemplo
+    path('', include('accounts.urls_root')),       # portada simple
+
+    # Password reset flow
+    path('accounts/password_reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='accounts/password_reset.html',
+             email_template_name='accounts/password_reset_email.txt',
+             subject_template_name='accounts/password_reset_subject.txt',
+             success_url=reverse_lazy('password_reset_done'),
+             from_email=os.getenv('DEFAULT_FROM_EMAIL', 'novedades@liberalia.cl'),
+         ),
+         name='password_reset'),
+    path('accounts/password_reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='accounts/password_reset_done.html'
+         ),
+         name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='accounts/password_reset_confirm.html',
+             success_url=reverse_lazy('password_reset_complete'),
+         ),
+         name='password_reset_confirm'),
+    path('accounts/reset/done/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='accounts/password_reset_complete.html'
+         ),
+         name='password_reset_complete'),
+
 ]
