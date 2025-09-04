@@ -1,4 +1,3 @@
-# accounts/views.py
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import HttpResponse
@@ -7,49 +6,76 @@ from django.views import View
 
 from .forms import EmailLoginForm  
 
+# Obtenemos el modelo de usuario activo en el proyecto
 User = get_user_model()
 
-
+# --------------------------------------------------------------------------
+# Vista basada en clases para manejar el login por email
+# --------------------------------------------------------------------------
 class LoginView(View):
-    template_name = 'accounts/login.html'  
+    template_name = 'accounts/login.html'  # plantilla que renderizamos
+
     def get(self, request):
+        # Si el usuario ya está autenticado, lo redirigimos a la raíz
         if request.user.is_authenticated:
             return redirect('/')  
+        # Si no está logueado, mostramos el formulario vacío
         return render(request, self.template_name, {'form': EmailLoginForm()})
 
     def post(self, request):
+        # Recibimos los datos del formulario
         form = EmailLoginForm(request.POST)
         if not form.is_valid():
+            # Si el formulario no es válido, mostramos un mensaje de error
             messages.error(request, 'Revisa los campos del formulario.')
             return render(request, self.template_name, {'form': form})
-
+        
+        # Normalizamos email y obtenemos la contraseña
         email = form.cleaned_data['email'].strip().lower()
         password = form.cleaned_data['password']
 
+        # Intentamos obtener el usuario por email y autenticarlo
         try:
             user = User.objects.get(email__iexact=email)
             user_auth = authenticate(request, username=user.username, password=password)
         except User.DoesNotExist:
             user_auth = None
 
+        # Si la autenticación falla, mostramos mensaje de error
         if user_auth is None:
             messages.error(request, 'Correo o contraseña inválidos.')
             return render(request, self.template_name, {'form': form})
 
-        login(request, user_auth)
-        messages.success(request, '¡Bienvenido!')
+        # Si la autenticación es correcta, hacemos login
+        login(request, user_auth)        
         return redirect('/')
 
-
+# --------------------------------------------------------------------------
+# Función para cerrar sesión
+# --------------------------------------------------------------------------
 def logout_view(request):
-    logout(request)
-    messages.info(request, 'Sesión cerrada.')
+    logout(request)   
     return redirect('accounts:login')
 
-
+# --------------------------------------------------------------------------
+# Vista de inicio que redirige según el rol del usuario
+# --------------------------------------------------------------------------
 def home(request):
+    from django.urls import reverse
+    from django.shortcuts import redirect
+    from roles.models import Profile
+
+    # Función interna para determinar la URL según rol
+    def _role_redirect(user):
+        r = getattr(getattr(user, "profile", None), "role", None)
+        if r == Profile.ROLE_ADMIN:     return reverse("roles:panel_admin")
+        if r == Profile.ROLE_EDITOR:    return reverse("roles:panel_editor")
+        if r == Profile.ROLE_CONSULTOR: return reverse("roles:panel_consultor")
+        return reverse("accounts:login") # fallback por si no hay rol
+
+    # Si el usuario está autenticado, lo redirigimos según su rol
     if request.user.is_authenticated:
-        return HttpResponse("<h2>Hola, %s</h2><p><a href='/accounts/logout/'>Cerrar sesión</a></p>" %
-                            request.user.get_username())
-    return HttpResponse("<h2>Sistema de Gestión de Novedades Editoriales</h2>" "<p>"
-    "<a href='/accounts/login/'>Iniciar sesión</a></p>")
+        return redirect(_role_redirect(request.user))
+    
+    # Si no está logueado, lo llevamos al login
+    return redirect("accounts:login")

@@ -1,16 +1,15 @@
-"""
-WSGI config for liberalia project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
-"""
 
 import os
-
 from django.core.wsgi import get_wsgi_application
 
+# --------------------------------------------------------------------------
+# Configuramos la variable de entorno para que Django sepa qué settings usar
+# --------------------------------------------------------------------------
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'liberalia.settings')
 
+
+# --------------------------------------------------------------------------
+# Creamos la aplicación WSGI que servirá la app en servidores como Gunicorn
+# o uWSGI. Esto es el punto de entrada para el despliegue en producción.
+# --------------------------------------------------------------------------
 application = get_wsgi_application()

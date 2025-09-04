@@ -13,13 +13,35 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
+    /* Layout general */
     body{ min-height:100dvh; display:flex; flex-direction:column; }
     main{ flex:1 0 auto; display:grid; place-items:center; padding:2rem 1rem; }
-    .auth-card{ max-width:380px; width:100%; border-radius:1rem; }
-    .brand-logo{ width:120px; height:auto; }
+
+    /* Tarjeta de auth (login/paneles) – mismo ancho en todas las vistas */
+    .auth-card{ max-width:400px; width:100%; border-radius:1rem; }
+
+    /* Logo usado arriba (login y paneles) */
+    .brand-logo{
+      height: 100px;        /* controla solo el alto */
+      width:auto;         /* mantiene proporción */
+      object-fit:contain; /* evita deformación */
+      display:block;
+      margin-inline:auto; /* centrado */
+    }
+
+    /* Logo del footer (más pequeño) */
+    .footer-logo{
+      height:70px;
+      width:auto;
+      object-fit:contain;
+      display:block;
+    }
+
+    /* Footer */
     .footer-band{ background:#212529; color:#f8f9fa; }
     .footer-band .contact{ font-size:.9rem; line-height:1.3; }
   </style>
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -31,22 +53,21 @@
 <footer class="footer-band py-3">
   <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
     <div class="d-flex align-items-center gap-3">
-      <!-- Logo footer -->
-     <img src="{% static 'img/logo_liberalia2.png' %}" class="brand-logo" alt="Liberalia">
-
-
+      <!-- Logo footer: usa clase distinta para no heredar la de arriba -->
+      <img src="{% static 'img/logo_liberalia2.png' %}" class="footer-logo" alt="Liberalia">
     </div>
     <div class="contact text-md-end">
       <div class="d-flex align-items-center gap-3 justify-content-md-end">
         <a class="text-light text-decoration-none" href="https://www.facebook.com/liberaliaEd/?locale=es_LA" aria-label="Facebook">
-            <i class="bi bi-facebook fs-5"></i>
+          <i class="bi bi-facebook fs-5"></i>
         </a>
         <a class="text-light text-decoration-none" href="https://www.instagram.com/liberalia_ediciones/?hl=es" aria-label="Instagram">
-            <i class="bi bi-instagram fs-5"></i>
+          <i class="bi bi-instagram fs-5"></i>
         </a>
-
-        <a class="text-light text-decoration-none" href="mailto:info@liberaliediciones.com" aria-label="Email"><i class="bi bi-envelope fs-5"></i></a>
-      </div>    
+        <a class="text-light text-decoration-none" href="mailto:info@liberaliediciones.com" aria-label="Email">
+          <i class="bi bi-envelope fs-5"></i>
+        </a>
+      </div>
       <div>Teléfonos: (+562) 23438432 - 24328003 - 23268613</div>
       <div>Av. Italia 2016, 7770478, Ñuñoa</div>
       <div>Santiago - Chile</div>
