@@ -21,25 +21,55 @@
   <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
 
+    <!-- Email -->
     <div class="mb-3">   
       <input type="email" name="email" id="id_email" class="form-control" placeholder="Correo"
              required autocomplete="email" value="{{ form.email.value|default:'' }}">
       <div class="invalid-feedback">Ingresa un correo válido</div>
     </div>
 
-    <div class="mb-2">
-      <input type="password" name="password" id="id_password" class="form-control" placeholder="Contraseña"
+    <!-- Password con ojo dentro -->
+    <div class="mb-2 position-relative">
+      <input type="password" name="password" id="id_password" class="form-control pe-5" placeholder="Contraseña"
              required minlength="6" autocomplete="current-password">
+      <i class="bi bi-eye password-toggle position-absolute top-50 end-0 translate-middle-y me-3"
+         id="togglePassword" style="cursor: pointer;"></i>
       <div class="invalid-feedback">Debe ingresar password</div>
     </div>
 
+    <!-- Link reset -->
     <div class="text-end mb-3">
       <a href="{% url 'password_reset' %}" class="link-secondary small">¿Has olvidado tu contraseña?</a>
     </div>
 
+    <!-- Botón submit -->
     <div class="d-grid">
       <button type="submit" class="btn btn-dark rounded-4 py-2">Iniciar sesión</button>
     </div>
   </form>
 </div>
+
+<!-- Script para alternar password con mouse -->
+<script>
+  const passwordField = document.getElementById("id_password");
+  const toggleIcon = document.getElementById("togglePassword");
+
+  toggleIcon.addEventListener("mousedown", function() {
+    passwordField.type = "text";
+    toggleIcon.classList.remove("bi-eye");
+    toggleIcon.classList.add("bi-eye-slash");
+  });
+
+  toggleIcon.addEventListener("mouseup", function() {
+    passwordField.type = "password";
+    toggleIcon.classList.remove("bi-eye-slash");
+    toggleIcon.classList.add("bi-eye");
+  });
+
+  toggleIcon.addEventListener("mouseleave", function() {
+    passwordField.type = "password";
+    toggleIcon.classList.remove("bi-eye-slash");
+    toggleIcon.classList.add("bi-eye");
+  });
+</script>
 {% endblock %}
