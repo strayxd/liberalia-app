@@ -1,6 +1,23 @@
 
-from django import forms
 
+"""
+Formularios para la aplicación 'accounts'.
+
+Este módulo define los formularios relacionados con la autenticación de usuarios.
+Actualmente incluye:
+
+- EmailLoginForm: formulario de inicio de sesión basado en email y contraseña,
+  con validaciones integradas de Django y personalización de widgets para 
+  facilitar la experiencia de usuario mediante estilos de Bootstrap y 
+  atributos de accesibilidad.
+
+De esta manera, se centralizan y reutilizan las definiciones de formularios
+que interactúan con las vistas de autenticación del sistema.
+"""
+
+
+
+from django import forms
 
 # Creamos un formulario de login basado en email y contraseña
 class EmailLoginForm(forms.Form):

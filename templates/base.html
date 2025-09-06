@@ -1,6 +1,18 @@
+<!-- ----------------------------------------------------------------------------- 
+Plantilla base de Liberalia:
+
+- Define la estructura HTML general (head, body, footer).
+- Incluye Bootstrap 5, Bootstrap Icons y estilos comunes (colores, botones, tablas, logos, footer).
+- Contiene bloques para título, contenido principal, CSS extra y JS extra.
+- Se utiliza como base para todos los paneles (Admin, Consultor, Editor) y páginas de autenticación.
+- Centraliza la apariencia y consistencia de la plataforma.
+----------------------------------------------------------------------------- -->
+
 {% load static %}
+
 <!doctype html>
 <html lang="es" data-bs-theme="light">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,86 +26,284 @@
 
   <style>
     /* Layout general */
-    body{ min-height:100dvh; display:flex; flex-direction:column; }
-    main{ flex:1 0 auto; display:grid; place-items:center; padding:2rem 1rem; }
+    body {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column; 
+    }
+
+    main {
+      flex: 1 0 auto;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1rem;
+    }
 
     /* Tarjeta de auth (login/paneles) – mismo ancho en todas las vistas */
-    .auth-card{ max-width:400px; width:100%; border-radius:1rem; }
+    .auth-card {
+      max-width: 400px;
+      width: 100%;
+      border-radius: 1rem;
+    }
 
     /* Logo usado arriba (login y paneles) */
-    .brand-logo{
-      height: 100px;        /* controla solo el alto */
-      width:auto;         /* mantiene proporción */
-      object-fit:contain; /* evita deformación */
-      display:block;
-      margin-inline:auto; /* centrado */
+    .brand-logo {
+      height: 100px;
+      /* controla solo el alto */
+      width: auto;
+      /* mantiene proporción */
+      object-fit: contain;
+      /* evita deformación */
+      display: block;
+      margin-inline: auto;
+      /* centrado */
     }
 
     /* Logo del footer (más pequeño) */
-    .footer-logo{
-      height:70px;
-      width:auto;
-      object-fit:contain;
-      display:block;
+    .footer-logo {
+      height: 70px;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
 
     /* Footer */
-    .footer-band{ background:#212529; color:#f8f9fa; }
-    .footer-band .contact{ font-size:.9rem; line-height:1.3; }
+    .footer-band {
+      background: #212529;
+      color: #f8f9fa;
+    }
+
+    .footer-band .contact {
+      font-size: .9rem;
+      line-height: 1.3;
+    }
   </style>
 
-  {% block extra_head %}{% endblock %}
+  {% block extra_head %}
+
+  <style>
+    /* Paleta */
+    :root {
+      --brand-burdeo: #7b1e2d;
+      /* burdeo figma */
+      --brand-burdeo-700: #671824;
+      /* hover + focus */
+      --brand-burdeo-100: #f6ecee;
+      /* fondos suaves */
+      --ink-700: #343a40;
+    }
+
+    /* Color fondo */
+    body {
+      background:     
+      linear-gradient(180deg, #fff5f8 0%, #ffeef5 50%, #fffafd 100%);
+    }
+
+    /* Botones burdeo */
+    .btn-burdeo {
+      color: #fff;
+      background-color: var(--brand-burdeo);
+      border-color: var(--brand-burdeo);
+    }
+
+    .btn-burdeo:hover,
+    .btn-burdeo:focus {
+      color: #fff;
+      background-color: var(--brand-burdeo-700);
+      border-color: var(--brand-burdeo-700);
+    }
+
+    .btn-outline-burdeo {
+      color: var(--brand-burdeo);
+      border-color: var(--brand-burdeo);
+      background: transparent;
+    }
+
+    .btn-outline-burdeo:hover,
+    .btn-outline-burdeo:focus {
+      color: #fff;
+      background: var(--brand-burdeo);
+      border-color: var(--brand-burdeo);
+    }
+
+    /* Dropdown (menú usuario) */
+    .user-menu .dropdown-item {
+      transition: background-color .2s ease, color .2s ease;
+    }
+    .user-menu .dropdown-item:hover {
+      background-color: #e0e0e0; /* gris un poco más oscuro */
+      color: #000;
+    }
+
+    /* Icono lupa del campo editorial */
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon .bi {
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      opacity: .6;
+    }
+
+    .input-icon .form-control {
+      padding-left: 2rem;
+    }
+
+    /* Tabla */
+    .table thead th {
+      text-transform: uppercase;
+      letter-spacing: .02em;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+
+    .no-results {
+      color: #6c757d;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    /* Ajuste del logo superior */
+    .brand-top {
+      display: grid;
+      place-items: center;
+      margin-top: 1rem;
+    }
+
+    :root {
+      --burdeo: #7B1F2B;
+      --burdeo-700: #5e1720;
+    }
+
+    /* Encabezados de la tabla: enlaces para ordenar */
+    .table thead th a,
+    .table thead th a:visited {
+      color: var(--burdeo);
+      text-decoration: none;
+      /* sin subrayado */
+      font-weight: 700;
+    }
+
+    .table thead th a:hover {
+      color: var(--burdeo-700);
+      text-decoration: none;
+      /* sin subrayado también al hover */
+    }
+
+    /* Tamaños por columna */
+    .table thead th {
+      font-size: .90rem;
+    }
+
+    /* base en header */
+    .table tbody td {
+      font-size: .95rem;
+    }
+
+    /* base en filas */
+
+    /* TÍTULO más grande */
+    .table thead th.col-titulo {
+      font-size: 1.00rem;
+    }
+
+    .table tbody td.col-titulo {
+      font-size: 1.00rem;
+    }
+
+    /* AUTOR y EDITORIAL del mismo tamaño */
+    .table thead th.col-autor,
+    .table thead th.col-editorial {
+      font-size: .90rem;
+    }
+
+    .table tbody td.col-autor,
+    .table tbody td.col-editorial {
+      font-size: .95rem;
+    }
+
+    /* FECHA DE EDICIÓN al “tamaño fecha” (similar inputs) */
+    .table thead th.col-fecha {
+      font-size: .95rem;
+    }
+
+    .table tbody td.col-fecha {
+      font-size: .95rem;
+      white-space: nowrap;
+    }
+
+    /* Opcional: ajustar ancho de ISBN/Fecha para no romper líneas */
+    .table thead th.col-isbn,
+    .table thead th.col-fecha {
+      white-space: nowrap;
+    }
+
+
+    .table thead th.text-end {
+      color: var(--burdeo);
+      font-weight: 700;
+    }
+  </style>
+  {% endblock %}
+
 </head>
+
 <body>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 
-<main>
-  {% block content %}{% endblock %}
-</main>
-
-<footer class="footer-band py-3">
-  <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-    <div class="d-flex align-items-center gap-3">
-      <!-- Logo footer: usa clase distinta para no heredar la de arriba -->
-      <img src="{% static 'img/logo_liberalia2.png' %}" class="footer-logo" alt="Liberalia">
-    </div>
-    <div class="contact text-md-end">
-      <div class="d-flex align-items-center gap-3 justify-content-md-end">
-        <a class="text-light text-decoration-none" href="https://www.facebook.com/liberaliaEd/?locale=es_LA" aria-label="Facebook">
-          <i class="bi bi-facebook fs-5"></i>
-        </a>
-        <a class="text-light text-decoration-none" href="https://www.instagram.com/liberalia_ediciones/?hl=es" aria-label="Instagram">
-          <i class="bi bi-instagram fs-5"></i>
-        </a>
-        <a class="text-light text-decoration-none" href="mailto:info@liberaliediciones.com" aria-label="Email">
-          <i class="bi bi-envelope fs-5"></i>
-        </a>
+  <footer class="footer-band py-3">
+    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <!-- Logo footer: usa clase distinta para no heredar la de arriba -->
+        <img src="{% static 'img/logo_liberalia2.png' %}" class="footer-logo" alt="Liberalia">
       </div>
-      <div>Teléfonos: (+562) 23438432 - 24328003 - 23268613</div>
-      <div>Av. Italia 2016, 7770478, Ñuñoa</div>
-      <div>Santiago - Chile</div>
+      <div class="contact text-md-end">
+        <div class="d-flex align-items-center gap-3 justify-content-md-end">
+          <a class="text-light text-decoration-none" href="https://www.facebook.com/liberaliaEd/?locale=es_LA"
+            aria-label="Facebook">
+            <i class="bi bi-facebook fs-5"></i>
+          </a>
+          <a class="text-light text-decoration-none" href="https://www.instagram.com/liberalia_ediciones/?hl=es"
+            aria-label="Instagram">
+            <i class="bi bi-instagram fs-5"></i>
+          </a>
+          <a class="text-light text-decoration-none" href="mailto:info@liberaliediciones.com" aria-label="Email">
+            <i class="bi bi-envelope fs-5"></i>
+          </a>
+        </div>
+        <div>Teléfonos: (+562) 23438432 - 24328003 - 23268613</div>
+        <div>Av. Italia 2016, 7770478, Ñuñoa</div>
+        <div>Santiago - Chile</div>
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Validación Bootstrap (cliente) -->
-<script>
-(() => {
-  'use strict';
-  const forms = document.querySelectorAll('.needs-validation');
-  Array.from(forms).forEach(form => {
-    form.addEventListener('submit', event => {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      form.classList.add('was-validated');
-    }, false);
-  });
-})();
-</script>
+  <!-- Validación Bootstrap (cliente) -->
+  <script>
+    (() => {
+      'use strict';
+      const forms = document.querySelectorAll('.needs-validation');
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+  </script>
 
-{% block extra_js %}{% endblock %}
+  {% block extra_js %}{% endblock %}
 </body>
+
 </html>

@@ -1,5 +1,9 @@
-# Crea (o garantiza) el Profile cada vez que se guarda un usuario.
-# Usamos settings.AUTH_USER_MODEL para no acoplarnos al User por defecto.
+# -------------------------------------------------------------------------------
+# Señales para garantizar que cada usuario tenga un Profile asociado.
+# Al crear un usuario nuevo, se crea automáticamente su Profile con el rol por defecto.
+# También asegura que usuarios existentes sin Profile reciban uno.
+# Se usa settings.AUTH_USER_MODEL para no depender del User por defecto.
+# -------------------------------------------------------------------------------
 
 from django.conf import settings
 from django.db.models.signals import post_save
