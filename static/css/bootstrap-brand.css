@@ -50,16 +50,7 @@
 a{ color: var(--brand); }
 a:hover{ color: var(--brand-700); }
 
-/* ===== Navs / Dropdowns ===== */
-.navbar-light .navbar-nav .nav-link.active,
-.navbar-light .navbar-nav .show>.nav-link{
-  color: var(--brand) !important;
-}
-.dropdown-item:active,
-.dropdown-item:focus{
-  background: var(--brand-100) !important;
-  color: var(--ink) !important;
-}
+
 
 /* ===== Formulario ===== */
 .form-check-input:checked{
@@ -102,4 +93,9 @@ a:hover{ color: var(--brand-700); }
 /* ===== Cards / Accents ===== */
 .card.border-primary{ border-color: var(--brand) !important; }
 .text-primary{ color: var(--brand) !important; }
+
+/* ===== Header tweaks (franja más visible si la quieres reforzar) ===== */
+.navbar.border-bottom{
+  border-bottom-color: var(--brand-100) !important;
+}
 

@@ -94,6 +94,39 @@ Plantilla base de Liberalia:
       font-size: .9rem;
       line-height: 1.3;
     }
+
+    /*AGREGADO POR RIVALDO PARA VISUALIZACION DE MENÚ Y NAVBAR*/
+    /*estilo menú desplegable*/
+    .dropdown-menu {
+      --bs-dropdown-link-hover-bg: var(--brand-100);
+      --bs-dropdown-link-hover-color: var(--brand-700);
+      --bs-dropdown-link-active-bg: var(--brand-100);
+      --bs-dropdown-link-active-color: var(--brand-700);
+    }
+
+    .dropdown-menu .dropdown-item {
+      transition: background-color 0.15s ease, color 0.15s ease, border-left 0.15s ease;
+      cursor: pointer;
+      border-left: 4px solid transparent; /* espacio reservado para la franja */
+      padding-left: 1rem; /* separa el texto del borde */
+    }
+
+    .dropdown-menu .dropdown-item:hover,
+    .dropdown-menu .dropdown-item:focus {
+      background-color: var(--bs-dropdown-link-hover-bg) !important;
+      color: var(--bs-dropdown-link-hover-color) !important;
+      border-left: 4px solid #d3d3d3; /* Franja de desplazamiento menú desplegable al recorrer mouse */
+    }
+
+    .navbar {
+      background-color: #ffe6f0 !important; /* color de franje en NAVBAR*/
+      width: 60%;              /* ancho limitado al 60% horizontal */
+      margin: 0 auto;          /* Centrado horizontalmente */
+      border-radius: 0 0 1rem 1rem; /* bordes redondeados abajo */
+    }
+
+    /*TERMINA ESTILO AGREGADO POR RIVALDO */
+    
   </style>
 
   {% block extra_head %}{% endblock %}
