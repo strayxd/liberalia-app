@@ -110,21 +110,21 @@ def build_queryset_for_user(user, params):
         q_titulo = (params.get("q_titulo") or "").strip()
         q_isbn   = (params.get("q_isbn") or "").strip()
         if q_titulo:
-            qs = qs.filter(titulo__icontains=q_titulo)
+            qs = qs.filter(titulo__icontains=q_titulo) # busca títulos que contengan el texto (sin distinguir mayúsc/minúsc)
         if q_isbn:
-            qs = qs.filter(isbn__icontains=q_isbn)  # o .filter(isbn=q_isbn) si quieres exacto
+            qs = qs.filter(isbn__icontains=q_isbn)   # busca ISBN que contengan la cadena de caracteres
     else:
         q = (params.get("q") or "").strip()
         if q:
             qs = qs.filter(editorial__nombre__icontains=q)
 
     # --- fechas ---
-    date_from = _parse_date(params.get("date_from"))
-    date_to   = _parse_date(params.get("date_to"))
+    date_from = _parse_date(params.get("date_from"))  # obtiene y convierte la fecha inicial desde los parámetros
+    date_to   = _parse_date(params.get("date_to")) # obtiene y convierte la fecha final desde los parámetros
     if date_from:
-        qs = qs.filter(fecha_edicion__gte=date_from)
+        qs = qs.filter(fecha_edicion__gte=date_from)  # filtra registros con fecha_edicion mayor o igual a date_from
     if date_to:
-        qs = qs.filter(fecha_edicion__lte=date_to)
+        qs = qs.filter(fecha_edicion__lte=date_to) # filtra registros con fecha_edicion menor o igual a date_to
 
     # --- restricción por rol (EDITOR: solo sus editoriales) ---
     if role == Profile.ROLE_EDITOR:
@@ -144,7 +144,7 @@ def build_queryset_for_user(user, params):
 # -----------------------------------------------
 class BasePanelView(LoginRequiredMixin, View):
     template_name = "roles/panel.html"   # TEMPLATE ÚNICO
-    role_required = None                 # opcional (Profile.ROLE_...)
+    role_required = None                 
 
     def get(self, request: HttpRequest):
         # Exportación CSV (solo si el rol lo permite)
