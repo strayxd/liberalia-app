@@ -6,7 +6,6 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
   create_url_name, edit_url_name.
 - Mantiene filtros, tabla, ordenamiento y validación de fechas.
 ----------------------------------------------------------------------------->
-
 {% extends "base_brand.html" %}
 {% load static %}
 
@@ -16,24 +15,42 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
 
 <div class="container py-3">
 
-  <!-- Logo y Menú viene desde BASE.html -->
-  
-  <!-- Filtros -->
+  <!-- FILTRO PARA ADMIN Y CONSULTOR (SOLO BUSQUEDA POR EDITORIAL) -------->
   <form class="row g-3 align-items-end" method="get" style="max-width:980px;margin:0 auto;">
-    <div class="col-12 col-md-5">
-      <label class="form-label mb-1">Nombre editorial</label>
-      <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-sliders"></i></span>
-        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar editorial…">
-      </div>
-    </div>
 
-    <div class="col-6 col-md-3">
+    {# --- ADMIN & CONSULTOR: filtro por EDITORIAL --- #}
+    {% if not is_editor %}
+      <div class="col-12 col-md-5">
+        <label class="form-label mb-1">Nombre editorial</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-sliders"></i></span>
+          <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar editorial…">
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- FILTRO PARA ROL EDITOR - POR TÍTULO E ISBN ------>
+    {# --- EDITOR: filtros por TÍTULO e ISBN --- #}
+    {% if is_editor %}
+      <div class="col-12 col-md-4">
+        <label class="form-label mb-1">Título</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-sliders"></i></span>
+          <input type="text" name="q_titulo" value="{{ q_titulo }}" class="form-control" placeholder="Buscar por título…">
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label mb-1">ISBN</label>
+        <input type="text" name="q_isbn" value="{{ q_isbn }}" class="form-control" placeholder="Buscar por ISBN…">
+      </div>
+    {% endif %}
+
+    <div class="col-6 col-md-2">
       <label class="form-label mb-1">Desde</label>
       <input type="date" name="date_from" value="{{ date_from }}" class="form-control" placeholder="dd-mm-aaaa">
     </div>
 
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-2">
       <label class="form-label mb-1">Hasta</label>
       <input type="date" name="date_to" value="{{ date_to }}" class="form-control" placeholder="dd-mm-aaaa">
     </div>
@@ -43,10 +60,17 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
       <button class="btn btn-outline-primary" type="submit">Buscar</button>
 
       {% if can_download %}
-        <a class="btn btn-outline-primary"
-           href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
-          Descargar
-        </a>
+        {% if is_editor %}
+          <a class="btn btn-outline-primary"
+             href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
+            Descargar
+          </a>
+        {% else %}
+          <a class="btn btn-outline-primary"
+             href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
+            Descargar
+          </a>
+        {% endif %}
       {% endif %}
 
       {% if can_create and create_url_name %}
@@ -55,16 +79,46 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
     </div>
   </form>
 
-  <!-- Tabla -->
+  <!-- Tabla Desplegada -->
   <div class="table-responsive mt-3" style="max-width:980px; margin:0 auto; min-height: 300px;">
     <table class="table align-middle mb-0">
       <thead>
         <tr>
-          <th><a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a></th>
-          <th><a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a></th>
-          <th><a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a></th>
-          <th><a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a></th>
-          <th><a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a></th>
+          <th>
+            {% if is_editor %}
+              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
+            {% else %}
+              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
+            {% endif %}
+          </th>
+          <th>
+            {% if is_editor %}
+              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
+            {% else %}
+              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
+            {% endif %}
+          </th>
+          <th>
+            {% if is_editor %}
+              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
+            {% else %}
+              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
+            {% endif %}
+          </th>
+          <th>
+            {% if is_editor %}
+              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
+            {% else %}
+              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
+            {% endif %}
+          </th>
+          <th>
+            {% if is_editor %}
+              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a>
+            {% else %}
+              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a>
+            {% endif %}
+          </th>
           <th class="text-end">Acción</th>
         </tr>
       </thead>
@@ -78,9 +132,9 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
           <td>{{ r.fecha_edicion|date:"d/m/Y" }}</td>
           <td class="text-end">
             {% if can_edit and edit_url_name %}
-              <a class="btn btn-sm btn-outline-primary href="{% url edit_url_name r.isbn %}>Editar</a> <!-- Colocar referencia final a URL DETALLE -->              
+              <a class="btn btn-sm btn-outline-primary" href="{% url edit_url_name r.isbn %}">Editar</a>
             {% elif show_detail %}
-              <a class="btn btn btn-outline-primary {{ detail_disabled|default:'disabled' }}">Detalle</a> <!-- Colocar referencia a URL DETALLE -->
+              <a class="btn btn-sm btn-outline-burdeo {{ detail_disabled|default:'disabled' }}">Detalle</a>
             {% else %}
               <span class="text-muted">—</span>
             {% endif %}
@@ -94,9 +148,10 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
   </div>
 </div>
 
-<!-- Validación de fechas (frontend) -->
+
 <script>
   const form = document.querySelector('form');
+  //validación de fechas 
   form.addEventListener('submit', function(e) {
     const dateFrom = document.querySelector('input[name="date_from"]').value;
     const dateTo = document.querySelector('input[name="date_to"]').value;
@@ -104,6 +159,22 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
       e.preventDefault();
       alert("La fecha 'Hasta' debe ser igual o posterior a la fecha 'Desde'.");
     }
+  });
+  //Desplegar vista al limpiar los campos, sin necesidad de ENTER
+  // Seleccionamos todos los inputs de tipo texto dentro del formulario
+  const inputs = form.querySelectorAll('input[type="text"]');
+
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      // Si el campo quedó completamente vacío (borrado por el usuario)
+      if (input.value === '') {
+        // Esperamos 200 milisegundos antes de enviar el formulario
+        // Esto ayuda a evitar que se envíe varias veces mientras el usuario escribe
+        setTimeout(() => {
+          form.submit();
+        }, 200);
+      }
+    });
   });
 </script>
 {% endblock %}

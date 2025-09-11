@@ -26,7 +26,7 @@ def role_required(expected_role):
         @login_required
         def _wrapped(request, *args, **kwargs):
             if _role(request.user) != expected_role:
-                return redirect("home-root")  
+                return redirect("home-root")  # cámbialo por un 403 si prefieres
             return viewfunc(request, *args, **kwargs)
         return _wrapped
     return decorator
@@ -34,7 +34,7 @@ def role_required(expected_role):
 
 def _panel_flags(user):
     """
-    Construye las banderas de UI / capacidades por rol para el template unificado.
+    Banderas de UI / capacidades por rol para el template unificado.
     """
     role = _role(user)
     is_admin = role == Profile.ROLE_ADMIN
@@ -53,18 +53,19 @@ def _panel_flags(user):
 
     return {
         "is_admin": is_admin,
+        "is_editor": is_editor,
+        "is_consultor": is_consultor,
         "role_label": role_label,
         "role_badge_class": role_badge_class,
 
-        # Capacidades por rol (alineadas a plantillas originales)
-        "can_download": is_admin or is_consultor,  # Admin/Consultor tenían "Descargar"
-        "can_create": is_editor,                   # Editor tenía "Crear"
-        "can_edit": is_editor,                     # Editor tenía "Editar"
-        "show_detail": is_admin or is_consultor,   # Admin/Consultor mostraban "Detalle"
+        # Capacidades por rol (alineadas a tus 3 plantillas originales)
+        "can_download": is_admin or is_consultor,   # Admin/Consultor tenían "Descargar"
+        "can_create": is_editor,                    # Editor tenía "Crear"
+        "can_edit": is_editor,                      # Editor tenía "Editar"
+        "show_detail": is_admin or is_consultor,    # Admin/Consultor mostraban "Detalle"
         "detail_disabled": "disabled",
 
-        # Nombres de URL 
-        # (IMPORTANTE: CAMBIAR POSTERIORMENTE CON LOS NOMBRES REALES)
+        # Nombres de URL (ajusta si tus names cambian)
         "create_url_name": "roles:ficha_new" if is_editor else None,
         "edit_url_name": "roles:ficha_edit" if is_editor else None,
     }
@@ -90,47 +91,60 @@ def _parse_date(s: str | None):
     except ValueError:
         return None
 
+
 def build_queryset_for_user(user, params):
     """
     Construye un queryset de LibroFicha respetando:
-    - Búsqueda por nombre de editorial (q)
+    - Para ADMIN/CONSULTOR: búsqueda SOLO por EDITORIAL (q)
+    - Para EDITOR: búsqueda por campo TITULO (q_titulo) e ISBN (q_isbn)
     - Rango de fechas (date_from, date_to)
     - Límite por rol (editor ve solo sus editoriales)
     - Ordenamiento (?sort=)
     """
     qs = LibroFicha.objects.select_related("editorial")
-    q = (params.get("q") or "").strip()
+
+    role = getattr(getattr(user, "profile", None), "role", None)
+
+    # --- filtros por texto según rol ---
+    if role == Profile.ROLE_EDITOR:
+        q_titulo = (params.get("q_titulo") or "").strip()
+        q_isbn   = (params.get("q_isbn") or "").strip()
+        if q_titulo:
+            qs = qs.filter(titulo__icontains=q_titulo)
+        if q_isbn:
+            qs = qs.filter(isbn__icontains=q_isbn)  # o .filter(isbn=q_isbn) si quieres exacto
+    else:
+        q = (params.get("q") or "").strip()
+        if q:
+            qs = qs.filter(editorial__nombre__icontains=q)
+
+    # --- fechas ---
     date_from = _parse_date(params.get("date_from"))
     date_to   = _parse_date(params.get("date_to"))
-    sort_key  = params.get("sort") or ""
-
-    if q:
-        qs = qs.filter(editorial__nombre__icontains=q)
-
     if date_from:
         qs = qs.filter(fecha_edicion__gte=date_from)
     if date_to:
         qs = qs.filter(fecha_edicion__lte=date_to)
 
-    # Restricción por rol (EDITOR: solo sus editoriales)
-    role = getattr(getattr(user, "profile", None), "role", None)
+    # --- restricción por rol (EDITOR: solo sus editoriales) ---
     if role == Profile.ROLE_EDITOR:
         ed_ids = UsuarioEditorial.objects.filter(user=user).values_list("editorial_id", flat=True)
         qs = qs.filter(editorial_id__in=list(ed_ids))
 
-    # Orden
+    # --- orden ---
+    sort_key = params.get("sort") or ""
     if sort_key in ALLOWED_SORTS:
         qs = qs.order_by(ALLOWED_SORTS[sort_key])
 
     return qs
 
 
-# ----------------------------
-# Vistas de lista (template unificado PANEL.HTML)
-# ----------------------------
+# -----------------------------------------------
+# Vistas de lista (template unificado)
+# -----------------------------------------------
 class BasePanelView(LoginRequiredMixin, View):
-    template_name = "roles/panel.html"   # TEMPLATE ÚNICO PARA LOS TRES TIPOS DE USUARIOS
-    role_required = None                 # opcional 
+    template_name = "roles/panel.html"   # TEMPLATE ÚNICO
+    role_required = None                 # opcional (Profile.ROLE_...)
 
     def get(self, request: HttpRequest):
         # Exportación CSV (solo si el rol lo permite)
@@ -145,8 +159,10 @@ class BasePanelView(LoginRequiredMixin, View):
 
         qs = build_queryset_for_user(request.user, request.GET)
         ctx = {
-            "rows": qs[:1000],  # limitada a 1000 filas
+            "rows": qs[:1000],  # limitada a 1000 registros
             "q": request.GET.get("q", ""),
+            "q_titulo": request.GET.get("q_titulo", ""),
+            "q_isbn": request.GET.get("q_isbn", ""),
             "date_from": request.GET.get("date_from", ""),
             "date_to": request.GET.get("date_to", ""),
             "sort": request.GET.get("sort", ""),
@@ -193,9 +209,9 @@ class PanelEditorView(BasePanelView):
     role_required = Profile.ROLE_EDITOR
 
 
-# ----------------------------
-# Vistas provisionales para crear/editar fichas (placeholders)
-# ----------------------------
+# -----------------------------------------------------------
+# Vistas SOLO PROVISIONALES para crear/editar fichas (placeholders)
+# -----------------------------------------------------------
 class LibroCreateView(LoginRequiredMixin, View):
     def get(self, request):
         # TODO: template de creación
