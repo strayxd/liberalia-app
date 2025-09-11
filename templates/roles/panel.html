@@ -1,49 +1,23 @@
-<!-- ----------------------------------------------------------------------------- 
-TEMPLATE DEL PANEL DE ADMINISTRACION DE LA APLICACION
-Incluye:
-- Menú de usuario con opciones de gestión y cierre de sesión.
-- Filtros de búsqueda (editorial y rango de fechas).
-- Tabla de resultados con ordenamiento y exportación a CSV.
-- Validación en cliente para el rango de fechas.
-------------------------------------------------------------------------------->
+<!----------------------------------------------------------------------------- 
+PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
+- Controla variaciones por rol con variables de contexto:
+  is_admin, role_label, role_badge_class,
+  can_download, can_create, can_edit, show_detail, detail_disabled,
+  create_url_name, edit_url_name.
+- Mantiene filtros, tabla, ordenamiento y validación de fechas.
+----------------------------------------------------------------------------->
 
-
-{% extends "base.html" %}
+{% extends "base_brand.html" %}
 {% load static %}
 
-
-
-{% block title %}Panel ADMIN - Liberalia{% endblock %}
+{% block title %}Panel {{ role_label|default:"USUARIO" }} - Liberalia{% endblock %}
 
 {% block content %}
 
 <div class="container py-3">
 
-  <!-- Logo -->
-  <div class="brand-top mb-2">
-    <img src="{% static 'img/logo_liberalia.jpg' %}" class="brand-logo" alt="Liberalia">
-  </div>
-
-  <!-- Menú usuario (derecha) -->
-  <div class="d-flex justify-content-end mb-3">
-    <div class="dropdown user-menu">
-      <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-        {{ request.user.get_username }}
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li class="dropdown-header">
-          {{ request.user.email }}<br>
-          <span class="badge bg-danger">Administrador</span>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Mantenedor usuarios</a></li>
-        <li><a class="dropdown-item" href="#">Mantenedor editoriales</a></li>
-        <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a></li>
-        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Cerrar sesión</a></li>
-      </ul>
-    </div>
-  </div>
-
+  <!-- Logo y Menú viene desde BASE.html -->
+  
   <!-- Filtros -->
   <form class="row g-3 align-items-end" method="get" style="max-width:980px;margin:0 auto;">
     <div class="col-12 col-md-5">
@@ -64,19 +38,24 @@ Incluye:
       <input type="date" name="date_to" value="{{ date_to }}" class="form-control" placeholder="dd-mm-aaaa">
     </div>
 
-    <!-- Botones: Descargar al lado de Buscar -->
+    <!-- Botones -->
     <div class="col-12 col-md-1 d-flex gap-2">
-      <button class="btn btn-outline-burdeo" type="submit">Buscar</button>
-      <a class="btn btn-outline-burdeo"
-         href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
-        Descargar
-      </a>
+      <button class="btn btn-outline-primary" type="submit">Buscar</button>
+
+      {% if can_download %}
+        <a class="btn btn-outline-primary"
+           href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
+          Descargar
+        </a>
+      {% endif %}
+
+      {% if can_create and create_url_name %}
+        <a class="btn btn-outline-primary" href="{% url create_url_name %}">Crear</a>
+      {% endif %}
     </div>
   </form>
 
-  <!-- Tabla despliegue-->
-   
-
+  <!-- Tabla -->
   <div class="table-responsive mt-3" style="max-width:980px; margin:0 auto; min-height: 300px;">
     <table class="table align-middle mb-0">
       <thead>
@@ -98,7 +77,13 @@ Incluye:
           <td>{{ r.editorial.nombre }}</td>
           <td>{{ r.fecha_edicion|date:"d/m/Y" }}</td>
           <td class="text-end">
-            <a class="btn btn-sm btn-outline-burdeo disabled">Detalle</a>
+            {% if can_edit and edit_url_name %}
+              <a class="btn btn-sm btn-outline-primary href="{% url edit_url_name r.isbn %}">Editar</a>
+            {% elif show_detail %}
+              <a class="btn btn-sm btn-outline-burdeo {{ detail_disabled|default:'disabled' }}">Detalle</a>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
           </td>
         </tr>
       {% empty %}
@@ -109,20 +94,16 @@ Incluye:
   </div>
 </div>
 
-
-<!-- Valida que la fecha Hasta sea superior a Desde (se puede hacer en el back con Django, posteriormente)-->
-
+<!-- Validación de fechas (frontend) -->
 <script>
   const form = document.querySelector('form');
   form.addEventListener('submit', function(e) {
     const dateFrom = document.querySelector('input[name="date_from"]').value;
     const dateTo = document.querySelector('input[name="date_to"]').value;
-
     if (dateFrom && dateTo && dateTo < dateFrom) {
       e.preventDefault();
       alert("La fecha 'Hasta' debe ser igual o posterior a la fecha 'Desde'.");
     }
   });
 </script>
-
 {% endblock %}

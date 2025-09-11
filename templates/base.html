@@ -9,7 +9,6 @@ Plantilla base de Liberalia:
 ----------------------------------------------------------------------------- -->
 
 {% load static %}
-
 <!doctype html>
 <html lang="es" data-bs-theme="light">
 
@@ -25,11 +24,29 @@ Plantilla base de Liberalia:
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
+    .hero-section {
+      height: 200px;
+      width: 60%;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgb(230, 230, 230);
+      margin: 0 auto;
+    }
+
+    .hero-image {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+
     /* Layout general */
     body {
       min-height: 100dvh;
       display: flex;
-      flex-direction: column; 
+      flex-direction: column;
     }
 
     main {
@@ -79,180 +96,43 @@ Plantilla base de Liberalia:
     }
   </style>
 
-  {% block extra_head %}
-
-  <style>
-    /* Paleta */
-    :root {
-      --brand-burdeo: #7b1e2d;
-      /* burdeo figma */
-      --brand-burdeo-700: #671824;
-      /* hover + focus */
-      --brand-burdeo-100: #f6ecee;
-      /* fondos suaves */
-      --ink-700: #343a40;
-    }
-
-    /* Color fondo */
-    body {
-      background:     
-      linear-gradient(180deg, #fff5f8 0%, #ffeef5 50%, #fffafd 100%);
-    }
-
-    /* Botones burdeo */
-    .btn-burdeo {
-      color: #fff;
-      background-color: var(--brand-burdeo);
-      border-color: var(--brand-burdeo);
-    }
-
-    .btn-burdeo:hover,
-    .btn-burdeo:focus {
-      color: #fff;
-      background-color: var(--brand-burdeo-700);
-      border-color: var(--brand-burdeo-700);
-    }
-
-    .btn-outline-burdeo {
-      color: var(--brand-burdeo);
-      border-color: var(--brand-burdeo);
-      background: transparent;
-    }
-
-    .btn-outline-burdeo:hover,
-    .btn-outline-burdeo:focus {
-      color: #fff;
-      background: var(--brand-burdeo);
-      border-color: var(--brand-burdeo);
-    }
-
-    /* Dropdown (menú usuario) */
-    .user-menu .dropdown-item {
-      transition: background-color .2s ease, color .2s ease;
-    }
-    .user-menu .dropdown-item:hover {
-      background-color: #e0e0e0; /* gris un poco más oscuro */
-      color: #000;
-    }
-
-    /* Icono lupa del campo editorial */
-    .input-icon {
-      position: relative;
-    }
-
-    .input-icon .bi {
-      position: absolute;
-      left: .75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      opacity: .6;
-    }
-
-    .input-icon .form-control {
-      padding-left: 2rem;
-    }
-
-    /* Tabla */
-    .table thead th {
-      text-transform: uppercase;
-      letter-spacing: .02em;
-      font-size: .85rem;
-      white-space: nowrap;
-    }
-
-    .no-results {
-      color: #6c757d;
-      text-align: center;
-      padding: 2rem 0;
-    }
-
-    /* Ajuste del logo superior */
-    .brand-top {
-      display: grid;
-      place-items: center;
-      margin-top: 1rem;
-    }
-
-    :root {
-      --burdeo: #7B1F2B;
-      --burdeo-700: #5e1720;
-    }
-
-    /* Encabezados de la tabla: enlaces para ordenar */
-    .table thead th a,
-    .table thead th a:visited {
-      color: var(--burdeo);
-      text-decoration: none;
-      /* sin subrayado */
-      font-weight: 700;
-    }
-
-    .table thead th a:hover {
-      color: var(--burdeo-700);
-      text-decoration: none;
-      /* sin subrayado también al hover */
-    }
-
-    /* Tamaños por columna */
-    .table thead th {
-      font-size: .90rem;
-    }
-
-    /* base en header */
-    .table tbody td {
-      font-size: .95rem;
-    }
-
-    /* base en filas */
-
-    /* TÍTULO más grande */
-    .table thead th.col-titulo {
-      font-size: 1.00rem;
-    }
-
-    .table tbody td.col-titulo {
-      font-size: 1.00rem;
-    }
-
-    /* AUTOR y EDITORIAL del mismo tamaño */
-    .table thead th.col-autor,
-    .table thead th.col-editorial {
-      font-size: .90rem;
-    }
-
-    .table tbody td.col-autor,
-    .table tbody td.col-editorial {
-      font-size: .95rem;
-    }
-
-    /* FECHA DE EDICIÓN al “tamaño fecha” (similar inputs) */
-    .table thead th.col-fecha {
-      font-size: .95rem;
-    }
-
-    .table tbody td.col-fecha {
-      font-size: .95rem;
-      white-space: nowrap;
-    }
-
-    /* Opcional: ajustar ancho de ISBN/Fecha para no romper líneas */
-    .table thead th.col-isbn,
-    .table thead th.col-fecha {
-      white-space: nowrap;
-    }
-
-
-    .table thead th.text-end {
-      color: var(--burdeo);
-      font-weight: 700;
-    }
-  </style>
-  {% endblock %}
-
+  {% block extra_head %}{% endblock %}
 </head>
 
 <body>
+  {% if request.user.is_authenticated %}
+  <nav class="navbar navbar-expand-lg bg-light">
+    <div class="container">
+      <div class="ms-auto">
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-capitalize" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              {{ request.user.get_full_name|default:request.user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              {% if request.user.profile.role == 'ADMIN' %}
+              <li><a class="dropdown-item" href="#">Mantenedor usuarios</a></li>
+              <li><a class="dropdown-item" href="#">Mantenedor editoriales</a></li>
+              {% endif %}
+              <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Cerrar Sesión</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero-section">
+    <img src="{% static 'img/logo_liberalia.jpg' %}" class="hero-image" alt="Logo liberalia">
+  </div>
+
+  {% endif %}
+
   <main>
     {% block content %}{% endblock %}
   </main>

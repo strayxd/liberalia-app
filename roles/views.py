@@ -1,77 +1,73 @@
-# -----------------------------------------------------------------------------
-# Paneles de usuario y utilidades de filtrado para la app "roles":
-# - Define tres paneles según el rol (ADMIN, EDITOR, CONSULTOR) con acceso protegido.
-# - Incluye decoradores y mixins para validar roles y redirigir usuarios no autorizados.
-# - Construye querysets de libros filtrados por editorial, fechas y permisos de rol.
-# - Permite exportar listas a CSV y proporciona vistas stub para crear/editar fichas de libros.
-# -----------------------------------------------------------------------------
-
-
 from __future__ import annotations
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.utils.http import urlencode
 from django.views import View
-
 
 from .models import Profile, UsuarioEditorial
 from catalogo.models import LibroFicha
-
 
 import csv
 from datetime import datetime
 
 
+# ----------------------------
+# Helpers de rol
+# ----------------------------
 def _role(user):
     """Devuelve el rol del usuario o None si no tiene profile."""
-    # Aquí lo que hacemos es usar getattr de forma encadenada para evitar errores
-    # en caso de que el usuario no tenga profile asociado.
-    # Si existe user.profile.role lo devolvemos, si no, retornamos None.
     return getattr(getattr(user, "profile", None), "role", None)
 
 
 def role_required(expected_role):
-    """
-    Decorador que exige:
-      - estar autenticado
-      - tener el rol 'expected_role'
-    """
-    # Definimos un decorador que envolverá la vista original.
+    """Decorador que exige login y rol esperado."""
     def decorator(viewfunc):
         @login_required
         def _wrapped(request, *args, **kwargs):
             if _role(request.user) != expected_role:
-                return redirect("home-root")  # cámbialo por 403 si prefieres
+                return redirect("home-root")  
             return viewfunc(request, *args, **kwargs)
         return _wrapped
     return decorator
 
 
-@role_required(Profile.ROLE_ADMIN)
-def panel_admin(request):
-    # En este panel construimos el contexto con el usuario y su rol
-    ctx = {"user_obj": request.user, "role": request.user.profile.role}
-    # Renderizamos la plantilla específica para el panel de administrador
-    return render(request, "roles/panel_admin.html", ctx)
+def _panel_flags(user):
+    """
+    Construye las banderas de UI / capacidades por rol para el template unificado.
+    """
+    role = _role(user)
+    is_admin = role == Profile.ROLE_ADMIN
+    is_editor = role == Profile.ROLE_EDITOR
+    is_consultor = role == Profile.ROLE_CONSULTOR
 
+    if is_admin:
+        role_label = "ADMIN"
+        role_badge_class = "bg-danger"
+    elif is_editor:
+        role_label = "EDITOR"
+        role_badge_class = "bg-secondary"
+    else:
+        role_label = "CONSULTOR"
+        role_badge_class = "bg-secondary"
 
-@role_required(Profile.ROLE_EDITOR)
-def panel_editor(request):
-    # Aquí hacemos lo mismo, pero para el rol de editor
-    ctx = {"user_obj": request.user, "role": request.user.profile.role}
-    return render(request, "roles/panel_editor.html", ctx)
+    return {
+        "is_admin": is_admin,
+        "role_label": role_label,
+        "role_badge_class": role_badge_class,
 
+        # Capacidades por rol (alineadas a plantillas originales)
+        "can_download": is_admin or is_consultor,  # Admin/Consultor tenían "Descargar"
+        "can_create": is_editor,                   # Editor tenía "Crear"
+        "can_edit": is_editor,                     # Editor tenía "Editar"
+        "show_detail": is_admin or is_consultor,   # Admin/Consultor mostraban "Detalle"
+        "detail_disabled": "disabled",
 
-@role_required(Profile.ROLE_CONSULTOR)
-def panel_consultor(request):
-    # Y en este caso repetimos la lógica, pero para el rol de consultor
-    ctx = {"user_obj": request.user, "role": request.user.profile.role}
-    return render(request, "roles/panel_consultor.html", ctx)
-
-
+        # Nombres de URL 
+        # (IMPORTANTE: CAMBIAR POSTERIORMENTE CON LOS NOMBRES REALES)
+        "create_url_name": "roles:ficha_new" if is_editor else None,
+        "edit_url_name": "roles:ficha_edit" if is_editor else None,
+    }
 
 
 # ----------------------------
@@ -119,7 +115,6 @@ def build_queryset_for_user(user, params):
     # Restricción por rol (EDITOR: solo sus editoriales)
     role = getattr(getattr(user, "profile", None), "role", None)
     if role == Profile.ROLE_EDITOR:
-        # Todas las editoriales asociadas al usuario
         ed_ids = UsuarioEditorial.objects.filter(user=user).values_list("editorial_id", flat=True)
         qs = qs.filter(editorial_id__in=list(ed_ids))
 
@@ -131,20 +126,26 @@ def build_queryset_for_user(user, params):
 
 
 # ----------------------------
-# Vistas de lista
+# Vistas de lista (template unificado PANEL.HTML)
 # ----------------------------
 class BasePanelView(LoginRequiredMixin, View):
-    template_name = ""       # lo define cada subclase
-    role_required = None     # opcional (Profile.ROLE_...)
+    template_name = "roles/panel.html"   # TEMPLATE ÚNICO PARA LOS TRES TIPOS DE USUARIOS
+    role_required = None                 # opcional 
 
     def get(self, request: HttpRequest):
-        # Si se pide exportación CSV
+        # Exportación CSV (solo si el rol lo permite)
         if request.GET.get("export") == "csv":
+            role = getattr(getattr(request.user, "profile", None), "role", None)
+            if self.role_required and role != self.role_required:
+                return redirect("home-root")  # o HttpResponse("Prohibido", status=403)
+            flags = _panel_flags(request.user)
+            if not flags.get("can_download"):
+                return HttpResponse("No autorizado", status=403)
             return self.export_csv(request)
 
         qs = build_queryset_for_user(request.user, request.GET)
         ctx = {
-            "rows": qs[:1000],  # limitada a 1000 registros (podemos cambiarla por otras opciones de paginación)
+            "rows": qs[:1000],  # limitada a 1000 filas
             "q": request.GET.get("q", ""),
             "date_from": request.GET.get("date_from", ""),
             "date_to": request.GET.get("date_to", ""),
@@ -155,8 +156,10 @@ class BasePanelView(LoginRequiredMixin, View):
         # valida rol si corresponde
         role = getattr(getattr(request.user, "profile", None), "role", None)
         if self.role_required and role != self.role_required:
-            return redirect("home-root")  # o 403
+            return redirect("home-root")  # o HttpResponse("Prohibido", status=403)
 
+        # inyecta banderas por rol
+        ctx.update(_panel_flags(request.user))
         return render(request, self.template_name, ctx)
 
     def export_csv(self, request: HttpRequest) -> HttpResponse:
@@ -179,31 +182,25 @@ class BasePanelView(LoginRequiredMixin, View):
 
 
 class PanelAdminView(BasePanelView):
-    template_name = "roles/panel_admin.html"
     role_required = Profile.ROLE_ADMIN
 
 
 class PanelConsultorView(BasePanelView):
-    template_name = "roles/panel_consultor.html"
     role_required = Profile.ROLE_CONSULTOR
 
 
 class PanelEditorView(BasePanelView):
-    template_name = "roles/panel_editor.html"
     role_required = Profile.ROLE_EDITOR
 
 
-
 # ----------------------------
-# SOLO PARA NO MOSTRAR ERROR ... TEMPLATES POR CREAR
-# Vistas provisionales para crear/editar fichas de libros.
-# Solo existen para evitar errores mientras se crean los templates definitivos.
-# Estas clases deben eliminarse una vez estén disponibles los templates finales.
+# Vistas provisionales para crear/editar fichas (placeholders)
 # ----------------------------
 class LibroCreateView(LoginRequiredMixin, View):
     def get(self, request):
         # TODO: template de creación
-        return HttpResponse("Nueva ficha (formulario)") 
+        return HttpResponse("Nueva ficha (formulario)")
+
 
 class LibroEditView(LoginRequiredMixin, View):
     def get(self, request, isbn):
