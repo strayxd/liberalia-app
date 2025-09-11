@@ -78,9 +78,9 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
           <td>{{ r.fecha_edicion|date:"d/m/Y" }}</td>
           <td class="text-end">
             {% if can_edit and edit_url_name %}
-              <a class="btn btn-sm btn-outline-primary href="{% url edit_url_name r.isbn %}">Editar</a>
+              <a class="btn btn-sm btn-outline-primary href="{% url edit_url_name r.isbn %}>Editar</a> <!-- Colocar referencia final a URL DETALLE -->              
             {% elif show_detail %}
-              <a class="btn btn-sm btn-outline-burdeo {{ detail_disabled|default:'disabled' }}">Detalle</a>
+              <a class="btn btn btn-outline-primary {{ detail_disabled|default:'disabled' }}">Detalle</a> <!-- Colocar referencia a URL DETALLE -->
             {% else %}
               <span class="text-muted">—</span>
             {% endif %}
