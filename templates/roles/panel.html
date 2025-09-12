@@ -13,68 +13,122 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
 
 {% block content %}
 
+<style>
+  .btn-clear {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6e1423;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .btn-clear:hover {
+    color: #3e0a14;
+  }
+
+  .input-group .form-control {
+    padding-right: 1rem;    
+  }
+</style>
+
 <div class="container py-3">
 
   <!-- FILTRO PARA ADMIN Y CONSULTOR (SOLO BUSQUEDA POR EDITORIAL) -------->
   <form class="row g-3 align-items-end" method="get" style="max-width:980px;margin:0 auto;">
 
     {# --- ADMIN & CONSULTOR: filtro por EDITORIAL --- #}
+
     {% if not is_editor %}
-      <div class="col-12 col-md-5">
-        <label class="form-label mb-1">Nombre editorial</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-sliders"></i></span>
-          <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar editorial…">
-        </div>
+    <div class="col-12 col-md-5">
+      <label class="form-label mb-1">Nombre editorial</label>
+      <div class="input-group position-relative">
+        <span class="input-group-text"><i class="bi bi-sliders"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control clearable" placeholder="Buscar editorial…">
+        <button type="button" class="btn btn-sm btn-clear position-absolute end-0 top-50 translate-middle-y me-2"
+          style="display:none;" aria-label="Limpiar campo">
+          <i class="bi bi-x-circle small"></i>
+        </button>
       </div>
+    </div>
     {% endif %}
 
     <!-- FILTRO PARA ROL EDITOR - POR TÍTULO E ISBN ------>
     {# --- EDITOR: filtros por TÍTULO e ISBN --- #}
     {% if is_editor %}
-      <div class="col-12 col-md-4">
-        <label class="form-label mb-1">Título</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-sliders"></i></span>
-          <input type="text" name="q_titulo" value="{{ q_titulo }}" class="form-control" placeholder="Buscar por título…">
-        </div>
+
+    <div class="col-12 col-md-4">
+      <label class="form-label mb-1">Título</label>
+      <div class="input-group position-relative">
+        <span class="input-group-text"><i class="bi bi-sliders"></i></span>
+        <input type="text" name="q_titulo" value="{{ q_titulo }}" class="form-control clearable"
+          placeholder="Buscar por título…">
+        <button type="button" class="btn btn-sm btn-clear position-absolute end-0 top-50 translate-middle-y me-2"
+          style="display:none;" aria-label="Limpiar campo">
+          <i class="bi bi-x-circle small"></i>
+        </button>
       </div>
-      <div class="col-12 col-md-3">
-        <label class="form-label mb-1">ISBN</label>
-        <input type="text" name="q_isbn" value="{{ q_isbn }}" class="form-control" placeholder="Buscar por ISBN…">
+    </div>
+
+    <div class="col-12 col-md-3">
+      <label class="form-label mb-1">ISBN</label>
+      <div class="input-group position-relative">
+        <input type="text" name="q_isbn" value="{{ q_isbn }}" class="form-control clearable"
+          placeholder="Buscar por ISBN…">
+        <button type="button" class="btn btn-sm btn-clear position-absolute end-0 top-50 translate-middle-y me-2"
+          style="display:none;" aria-label="Limpiar campo">
+          <i class="bi bi-x-circle small"></i>
+        </button>
       </div>
+    </div>
+
     {% endif %}
 
     <div class="col-6 col-md-2">
       <label class="form-label mb-1">Desde</label>
-      <input type="date" name="date_from" value="{{ date_from }}" class="form-control" placeholder="dd-mm-aaaa">
+      <div class="input-group position-relative">
+        <input type="date" name="date_from" value="{{ date_from }}" class="form-control clearable"
+          placeholder="dd-mm-aaaa">
+        <button type="button" class="btn btn-sm btn-clear position-absolute end-0 top-50 translate-middle-y me-2"
+          style="display:none;" aria-label="Limpiar campo">
+          <i class="bi bi-x-circle small"></i>
+        </button>
+      </div>
     </div>
+
 
     <div class="col-6 col-md-2">
       <label class="form-label mb-1">Hasta</label>
-      <input type="date" name="date_to" value="{{ date_to }}" class="form-control" placeholder="dd-mm-aaaa">
+      <div class="input-group position-relative">
+        <input type="date" name="date_to" value="{{ date_to }}" class="form-control clearable" placeholder="dd-mm-aaaa">
+        <button type="button" class="btn btn-sm btn-clear position-absolute end-0 top-50 translate-middle-y me-2"
+          style="display:none;" aria-label="Limpiar campo">
+          <i class="bi bi-x-circle small"></i>
+        </button>
+      </div>
     </div>
+
 
     <!-- Botones -->
     <div class="col-12 col-md-1 d-flex gap-2">
       <button class="btn btn-outline-primary" type="submit">Buscar</button>
 
       {% if can_download %}
-        {% if is_editor %}
-          <a class="btn btn-outline-primary"
-             href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
-            Descargar
-          </a>
-        {% else %}
-          <a class="btn btn-outline-primary"
-             href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
-            Descargar
-          </a>
-        {% endif %}
+      {% if is_editor %}
+      <a class="btn btn-outline-primary"
+        href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
+        Descargar
+      </a>
+      {% else %}
+      <a class="btn btn-outline-primary"
+        href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort={{ sort }}&export=csv">
+        Descargar
+      </a>
+      {% endif %}
       {% endif %}
 
       {% if can_create and create_url_name %}
-        <a class="btn btn-outline-primary" href="{% url create_url_name %}">Crear</a>
+      <a class="btn btn-outline-primary" href="{% url create_url_name %}">Crear</a>
       {% endif %}
     </div>
   </form>
@@ -86,44 +140,50 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
         <tr>
           <th>
             {% if is_editor %}
-              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
+            <a
+              href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
             {% else %}
-              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
+            <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=isbn">ISBN</a>
             {% endif %}
           </th>
           <th>
             {% if is_editor %}
-              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
+            <a
+              href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
             {% else %}
-              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
+            <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=titulo">TÍTULO</a>
             {% endif %}
           </th>
           <th>
             {% if is_editor %}
-              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
+            <a
+              href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
             {% else %}
-              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
+            <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=autor">AUTOR</a>
             {% endif %}
           </th>
           <th>
             {% if is_editor %}
-              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
+            <a
+              href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
             {% else %}
-              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
+            <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=editorial">EDITORIAL</a>
             {% endif %}
           </th>
           <th>
             {% if is_editor %}
-              <a href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a>
+            <a
+              href="?q_titulo={{ q_titulo }}&q_isbn={{ q_isbn }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F.
+              EDICIÓN</a>
             {% else %}
-              <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a>
+            <a href="?q={{ q }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=fecha">F. EDICIÓN</a>
             {% endif %}
           </th>
           <th class="text-end">Acción</th>
         </tr>
       </thead>
       <tbody>
-      {% for r in rows %}
+        {% for r in rows %}
         <tr>
           <td class="fw-semibold">{{ r.isbn }}</td>
           <td>{{ r.titulo }}</td>
@@ -132,17 +192,19 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
           <td>{{ r.fecha_edicion|date:"d/m/Y" }}</td>
           <td class="text-end">
             {% if can_edit and edit_url_name %}
-              <a class="btn btn-sm btn-outline-primary" href="{% url edit_url_name r.isbn %}">Editar</a>
+            <a class="btn btn-sm btn-outline-primary" href="{% url edit_url_name r.isbn %}">Editar</a>
             {% elif show_detail %}
-              <a class="btn btn-sm btn-outline-burdeo {{ detail_disabled|default:'disabled' }}">Detalle</a>
+            <a class="btn btn-sm btn-outline-burdeo {{ detail_disabled|default:'disabled' }}">Detalle</a>
             {% else %}
-              <span class="text-muted">—</span>
+            <span class="text-muted">—</span>
             {% endif %}
           </td>
         </tr>
-      {% empty %}
-        <tr><td colspan="6" class="text-center text-muted py-4">Sin resultados</td></tr>
-      {% endfor %}
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">Sin resultados</td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -152,7 +214,7 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
 <script>
   const form = document.querySelector('form');
   //validación de fechas 
-  form.addEventListener('submit', function(e) {
+  form.addEventListener('submit', function (e) {
     const dateFrom = document.querySelector('input[name="date_from"]').value;
     const dateTo = document.querySelector('input[name="date_to"]').value;
     if (dateFrom && dateTo && dateTo < dateFrom) {
@@ -176,5 +238,28 @@ PANEL UNIFICADO (ADMIN / CONSULTOR / EDITOR)
       }
     });
   });
+
+  document.querySelectorAll('.clearable').forEach(input => {
+    const clearBtn = input.parentElement.querySelector('.btn-clear');
+    const toggleClearBtn = () => {
+      if (input.value) {
+        clearBtn.style.display = 'block';
+      } else {
+        clearBtn.style.display = 'none';
+      }
+    };
+
+    input.addEventListener('input', toggleClearBtn);
+    toggleClearBtn(); // mostrar u ocultar al cargar
+
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      toggleClearBtn();
+      form.submit();
+    });
+  });
+
+
+
 </script>
 {% endblock %}

@@ -1,33 +1,160 @@
-# Modelo LibroFicha solo para probar la aplicación 
-# luego hay que agregar el resto de los campos asociados a la ficha del libro
-# -----------------
-# Representa un libro registrado en el sistema.
-# Cada libro tiene:
-#   - ISBN único
-#   - Título y autor
-#   - Editorial asociada (relación con el modelo Editorial)
-#   - Fecha de edición (opcional)
-# 
-# Los libros se ordenan por título de forma predeterminada.
-# La representación (__str__) muestra "ISBN · Título" para facilitar la identificación en admin y consultas.
-
 
 from django.db import models
-from roles.models import Editorial  # Importamos el modelo Editorial para relacionarlo con LibroFicha
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
+from roles.models import Editorial  # FK existente en app Roles
 
-class LibroFicha(models.Model):
-    isbn = models.CharField(max_length=32, unique=True)  # Código ISBN, único para cada libro
-    titulo = models.CharField(max_length=255)  # Título del libro
-    autor = models.CharField(max_length=255, blank=True)  # Autor del libro (puede quedar vacío)
-    editorial = models.ForeignKey(  # Relación con la editorial (una editorial puede tener muchos libros)
-        Editorial,
-        on_delete=models.CASCADE,   # Si se elimina la editorial, se eliminan también sus libros
-        related_name="libros"       # Nombre para acceder a los libros desde Editorial (ej: editorial.libros.all())
-    )
-    fecha_edicion = models.DateField(null=True, blank=True)  # Fecha de edición (puede quedar vacía)
+# ============================
+# Catálogos 
+# ============================
+
+class TipoTapa(models.Model):
+    """
+    Catálogo de tipos de encuadernación/tapa.
+    Ej: 'Rústica', 'Tapa dura', 'Rústica con solapas', etc.
+    """
+    nombre = models.CharField(max_length=35, unique=True)
 
     class Meta:
-        ordering = ["titulo"]  # Ordenar resultados por título al hacer consultas
+        ordering = ["nombre"]
 
-    def __str__(self):
-        return f"{self.isbn} · {self.titulo}"  # Representación legible del objeto (ISBN + título)
+    def __str__(self) -> str:
+        return self.nombre
+
+
+class Pais(models.Model):  # Modelo de país con código ISO
+    """
+    País normalizado con siglas ISO 3166-1 alpha-2 (CL, AR, ES, ...)
+    """
+    code = models.CharField(
+        max_length=2,
+        unique=True,  # No se repite entre países
+        validators=[RegexValidator(r"^[A-Za-z]{2}$", "Use código ISO 3166-1 alpha-2, p. ej. 'CL'.")], # Solo letras
+        help_text="Código ISO 3166-1 alpha-2 (2 letras).",
+    )
+    nombre = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ["nombre"]
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.code.upper()})" 
+
+
+class Moneda(models.Model): # Modelo de moneda con código ISO 4217
+    """
+    Moneda normalizada con código ISO 4217 (CLP, USD, EUR, ...)
+    """
+    code = models.CharField(
+        max_length=3,
+        unique=True,
+        validators=[RegexValidator(r"^[A-Za-z]{3}$", "Use código ISO 4217, p. ej. 'CLP'.")],  # Solo letras
+        help_text="Código ISO 4217 (3 letras).",
+    )
+    nombre = models.CharField(max_length=30) #nombre de la moneda
+    simbolo = models.CharField(max_length=5, blank=True, null=True) # Ej: $, €
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self) -> str:
+        return f"{self.code.upper()} – {self.nombre}" 
+
+
+class Idioma(models.Model): # Modelo de idioma con código ISO 639-1
+    """
+    Idioma normalizado con código ISO 639-1 (es, en, fr, ...)
+    """
+    code = models.CharField(
+        max_length=2,  # Código de 2 letras (ej: es, en, fr)
+        unique=True,
+        validators=[RegexValidator(r"^[A-Za-z]{2,5}$", "Use código ISO 639-1, p. ej. 'es'.")], # solo letras
+        help_text="Código ISO 639-1 (2 letras).",
+    )
+    nombre = models.CharField(max_length=20) #nombre del idioma
+
+    class Meta:
+        ordering = ["nombre"]
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.code.lower()})"
+
+
+# ============================
+# FICHA DEL LIBRO
+# ============================
+
+class LibroFicha(models.Model):
+    # Identificadores
+    isbn  = models.CharField(max_length=16, unique=True, db_index=True)   # usado en panel/búsquedas (Largo 16, por si tienes guiones)
+    ean   = models.CharField(max_length=16, blank=True, null=True)
+
+    editorial = models.ForeignKey(
+        Editorial,
+        on_delete=models.CASCADE,
+        related_name="libros",
+    )
+
+    # Título / autores
+    titulo        = models.CharField(max_length=100, db_index=True)  # usado en panel/búsquedas
+    subtitulo     = models.CharField(max_length=100, blank=True, null=True)
+    autor         = models.CharField(max_length=100, db_index=True)  # 120 por autores múltiples
+    autor_prologo = models.CharField(max_length=40, blank=True, null=True)
+    traductor     = models.CharField(max_length=40, blank=True, null=True)
+    ilustrador    = models.CharField(max_length=60, blank=True, null=True)
+
+    # Ficha técnica (normalizados donde aporta)
+
+    
+    tipo_tapa = models.ForeignKey(TipoTapa, on_delete=models.PROTECT)  # sin null/blank
+    numero_paginas  = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    alto_cm         = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    ancho_cm        = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    grosor_cm       = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    peso_gr         = models.PositiveIntegerField(blank=True, null=True)
+
+    idioma_original = models.ForeignKey(Idioma, on_delete=models.PROTECT)
+
+    numero_edicion   = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    fecha_edicion    = models.DateField(db_index=True)  # usado en panel/búsquedas
+
+    
+    pais_edicion = models.ForeignKey(Pais, on_delete=models.PROTECT)
+
+    numero_impresion = models.PositiveIntegerField(blank=True, null=True)
+
+    tematica = models.CharField(max_length=60, blank=True, null=True) #texto libre
+
+    # COMERCIAL
+    precio  = models.DecimalField(max_digits=10, decimal_places=2)
+    
+  
+    moneda = models.ForeignKey(Moneda, on_delete=models.PROTECT) #lo he dejado nuleable
+    
+    # Porcentaje 0.0–99.9 (ej: 12.5 = 12.5%)
+    descuento_distribuidor = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[MinValueValidator(0), MaxValueValidator(99.9)],
+        help_text="Porcentaje de 0.0 a 99.9",
+    )
+    
+    # Contenido / media
+    resumen_libro = models.TextField()
+
+    #IMPORTANTE : PERMITO NULOS TEMPORALMENTE PARA CARGAR EL BASE DE DATOS
+    codigo_imagen = models.CharField(max_length=120, blank=True, null=True) #lo he dejado nuleable 
+    rango_etario  = models.CharField(max_length=30, blank=True, null=True)
+
+    class Meta:
+        ordering = ["titulo"]
+        indexes = [
+            # Filtros/orden usados en PANEL y VISTAS
+            models.Index(fields=["isbn"]),
+            models.Index(fields=["titulo"]),
+            models.Index(fields=["autor"]),
+            models.Index(fields=["fecha_edicion"]),
+            models.Index(fields=["editorial"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.isbn} · {self.titulo}"

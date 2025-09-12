@@ -7,7 +7,6 @@ Plantilla base de Liberalia:
 - Se utiliza como base para todos los paneles (Admin, Consultor, Editor) y páginas de autenticación.
 - Centraliza la apariencia y consistencia de la plataforma.
 ----------------------------------------------------------------------------- -->
-
 {% load static %}
 <!doctype html>
 <html lang="es" data-bs-theme="light">
@@ -23,111 +22,8 @@ Plantilla base de Liberalia:
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-  <style>
-    .hero-section {
-      height: 200px;
-      width: 60%;
-      background-color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 1px solid rgb(230, 230, 230);
-      margin: 0 auto;
-    }
-
-    .hero-image {
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
-    }
-
-
-    /* Layout general */
-    body {
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    main {
-      flex: 1 0 auto;
-      display: grid;
-      place-items: center;
-      padding: 2rem 1rem;
-    }
-
-    /* Tarjeta de auth (login/paneles) – mismo ancho en todas las vistas */
-    .auth-card {
-      max-width: 400px;
-      width: 100%;
-      border-radius: 1rem;
-    }
-
-    /* Logo usado arriba (login y paneles) */
-    .brand-logo {
-      height: 100px;
-      /* controla solo el alto */
-      width: auto;
-      /* mantiene proporción */
-      object-fit: contain;
-      /* evita deformación */
-      display: block;
-      margin-inline: auto;
-      /* centrado */
-    }
-
-    /* Logo del footer (más pequeño) */
-    .footer-logo {
-      height: 70px;
-      width: auto;
-      object-fit: contain;
-      display: block;
-    }
-
-    /* Footer */
-    .footer-band {
-      background: #212529;
-      color: #f8f9fa;
-    }
-
-    .footer-band .contact {
-      font-size: .9rem;
-      line-height: 1.3;
-    }
-
-    /*AGREGADO POR RIVALDO PARA VISUALIZACION DE MENÚ Y NAVBAR*/
-    /*estilo menú desplegable*/
-    .dropdown-menu {
-      --bs-dropdown-link-hover-bg: var(--brand-100);
-      --bs-dropdown-link-hover-color: var(--brand-700);
-      --bs-dropdown-link-active-bg: var(--brand-100);
-      --bs-dropdown-link-active-color: var(--brand-700);
-    }
-
-    .dropdown-menu .dropdown-item {
-      transition: background-color 0.15s ease, color 0.15s ease, border-left 0.15s ease;
-      cursor: pointer;
-      border-left: 4px solid transparent; /* espacio reservado para la franja */
-      padding-left: 1rem; /* separa el texto del borde */
-    }
-
-    .dropdown-menu .dropdown-item:hover,
-    .dropdown-menu .dropdown-item:focus {
-      background-color: var(--bs-dropdown-link-hover-bg) !important;
-      color: var(--bs-dropdown-link-hover-color) !important;
-      border-left: 4px solid #d3d3d3; /* Franja de desplazamiento menú desplegable al recorrer mouse */
-    }
-
-    .navbar {
-      background-color: #ffe6f0 !important; /* color de franje en NAVBAR*/
-      width: 60%;              /* ancho limitado al 60% horizontal */
-      margin: 0 auto;          /* Centrado horizontalmente */
-      border-radius: 0 0 1rem 1rem; /* bordes redondeados abajo */
-    }
-
-    /*TERMINA ESTILO AGREGADO POR RIVALDO */
-    
-  </style>
+  <!-- Estilos base de la plataforma -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -139,14 +35,14 @@ Plantilla base de Liberalia:
       <div class="ms-auto">
         <ul class="navbar-nav">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-capitalize" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
+            <a class="nav-link dropdown-toggle text-capitalize" href="#" id="navbarDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
               {{ request.user.get_full_name|default:request.user.username }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
               {% if request.user.profile.role == 'ADMIN' %}
-              <li><a class="dropdown-item" href="#">Mantenedor usuarios</a></li>    <!-- AGREGAR URL FINAL DEL MANTENEDOR DE USUARIOS -->
-              <li><a class="dropdown-item" href="#">Mantenedor editoriales</a></li> <!--AGREGAR URL FINAL DEL MANTENEDOR DE EDITORIALES -->
+              <li><a class="dropdown-item" href="#">Mantenedor usuarios</a></li>
+              <li><a class="dropdown-item" href="#">Mantenedor editoriales</a></li>
               {% endif %}
               <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Cambiar contraseña</a></li>
               <li>
@@ -163,7 +59,6 @@ Plantilla base de Liberalia:
   <div class="hero-section">
     <img src="{% static 'img/logo_liberalia.jpg' %}" class="hero-image" alt="Logo liberalia">
   </div>
-
   {% endif %}
 
   <main>
@@ -173,7 +68,6 @@ Plantilla base de Liberalia:
   <footer class="footer-band py-3">
     <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
       <div class="d-flex align-items-center gap-3">
-        <!-- Logo footer: usa clase distinta para no heredar la de arriba -->
         <img src="{% static 'img/logo_liberalia2.png' %}" class="footer-logo" alt="Liberalia">
       </div>
       <div class="contact text-md-end">
