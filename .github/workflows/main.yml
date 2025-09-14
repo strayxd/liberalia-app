@@ -18,3 +18,8 @@ jobs:
         username: duoc@liberalia.cl
         password: ${{ secrets.ftp_password }}
         server-dir: /deploy/
+
+    - name: 🔄 Restart Passenger
+      run: |
+        echo "Reiniciando Passenger..."
+        echo "" > tmp/restart.txt
