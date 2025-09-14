@@ -8,7 +8,7 @@ import os
 # --------------------------------------------------------------------------
 # Definimos todas las rutas del proyecto
 # --------------------------------------------------------------------------
-core_patterns = [    
+urlpatterns = [    
     path('admin/', admin.site.urls), # Panel de administración de Django
     path('accounts/', include('accounts.urls')),   # Rutas de la app 'accounts' para login, logout y manejo de usuarios
     path('', include('accounts.urls_root')),       # Ruta raíz del proyecto: portada simple que redirige según rol
@@ -50,8 +50,4 @@ core_patterns = [
              template_name='accounts/password_reset_complete.html'
          ),
          name='password_reset_complete'),
-]
-
-urlpatterns = [
-    path('novedades/', include(core_patterns)),
 ]
