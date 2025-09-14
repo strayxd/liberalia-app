@@ -1,3 +1,18 @@
+"""
+Configuración del panel de administración para la aplicación 'roles'.
+
+Este módulo registra y personaliza la visualización del modelo Profile
+dentro del admin de Django. A través de esta configuración se definen:
+
+- Las columnas que se muestran en la lista principal (usuario y rol).
+- Los filtros laterales disponibles (por rol).
+- Los campos de búsqueda habilitados (username y email del usuario).
+
+De esta forma, el administrador puede gestionar de manera eficiente
+los perfiles de usuario y sus roles en el sistema.
+"""
+
+
 from django.contrib import admin
 from .models import Profile
 

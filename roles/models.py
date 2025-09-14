@@ -1,3 +1,20 @@
+"""
+Modelos de la aplicación 'roles'.
+
+Este módulo define la estructura de datos relacionada con los roles de usuario
+y su vínculo con las editoriales dentro del sistema. Incluye:
+
+- Editorial: catálogo de editoriales que permite asociar usuarios a una o varias.
+- Profile: extensión del modelo de usuario de Django con un rol asignado 
+  (ADMIN, EDITOR o CONSULTOR).
+- UsuarioEditorial: tabla intermedia que implementa la relación M:N entre 
+  usuarios y editoriales, asegurando que un usuario pueda pertenecer a varias 
+  editoriales y una editorial pueda tener múltiples usuarios.
+
+De esta manera, se organiza la gestión de perfiles y permisos, facilitando 
+el control de acceso y la administración de usuarios según su rol 
+y las editoriales a las que pertenecen.
+"""
 # -----------------------------------------------------------------------------
 # Estos modelos cubren tu diagrama:
 #   - Editorial: catálogo de editoriales
@@ -10,8 +27,10 @@ from django.conf import settings
 from django.db import models
 
 
+# Definir el catálogo de editoriales para poder asociarlas a los usuarios 
+# según su rol y utilizarlas en distintas partes del sistema.
 class Editorial(models.Model):
-    # Catálogo de editoriales (opcional para ahora; no interfiere con Opción A)
+    # Catálogo de editoriales -- ESTÁ ACÁ PARA ASOCIAR EDITORIALES CON EL ROL DEL USUARIO
     nombre = models.CharField(max_length=150)
     id_fiscal = models.CharField(max_length=50, blank=True, null=True)
 
@@ -23,6 +42,10 @@ class Editorial(models.Model):
     def __str__(self) -> str:        
         return self.nombre
 
+
+# Extender la información del usuario con un perfil asociado 1–1, 
+# donde se define el rol (editor, consultor o admin) y se agregan 
+# helpers para consultar de forma más legible el tipo de usuario.
 
 class Profile(models.Model):
     # Definimos constantes para los roles y evitamos repetir strings sueltos
@@ -75,6 +98,11 @@ class Profile(models.Model):
     def is_consultor(self) -> bool:
         return self.role == self.ROLE_CONSULTOR
 
+
+
+# Crear una tabla intermedia para relacionar usuarios con editoriales, 
+# evitando duplicados y manteniendo la relación a prueba de futuro 
+# (usando AUTH_USER_MODEL en lugar de User directamente).
 
 class UsuarioEditorial(models.Model):
     # Relación M:N entre usuario y editorial (tabla puente)

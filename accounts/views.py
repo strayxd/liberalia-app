@@ -1,3 +1,17 @@
+"""
+Módulo de vistas para la aplicación 'accounts'.
+
+Este archivo gestiona las operaciones principales de autenticación de usuarios:
+- Inicio de sesión mediante correo electrónico y contraseña.
+- Cierre de sesión del usuario autenticado.
+- Redirección automática al panel correspondiente según el rol del perfil 
+  (Administrador, Editor o Consultor).
+
+De esta forma, se centraliza la lógica de acceso y navegación inicial del sistema,
+garantizando seguridad y una experiencia personalizada para cada usuario.
+"""
+
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import HttpResponse
@@ -5,6 +19,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from .forms import EmailLoginForm  
+
 
 # Obtenemos el modelo de usuario activo en el proyecto
 User = get_user_model()
